@@ -13,12 +13,12 @@ import { Log } from "vscode-test-adapter-util";
 import { createTree } from "./helpers/createTree";
 import { emitTestCompleteRootNode, emitTestRunningRootNode } from "./helpers/emitTestCompleteRootNode";
 import { filterTree } from "./helpers/filterTree";
+import { initProjectWorkspace } from "./helpers/initProjectWorkspace";
+import { mapJestTestResultsToTestEvents } from "./helpers/mapJestTestResultsToTestEvents";
 import { mapTestIdsToTestFilter } from "./helpers/mapTestIdsToTestFilter";
 import { mapTreeToSuite } from "./helpers/mapTreeToSuite";
 import { createRootNode, RootNode } from "./helpers/tree";
-import { initProjectWorkspace } from "./initProjectWorkspace";
 import JestManager, { IJestManagerOptions } from "./JestManager";
-import { mapJestTestResultsToTestEvents } from "./mapJestTestResultsToTestEvents";
 import TestLoader from "./TestLoader";
 
 interface IDiposable {

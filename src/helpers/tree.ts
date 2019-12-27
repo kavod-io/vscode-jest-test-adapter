@@ -1,7 +1,6 @@
 export interface Node {
   id: string;
   label: string;
-  acceptVisitor: (visitor: NodeVisitor) => void;
 }
 
 export interface RootNode extends Node {
@@ -25,6 +24,7 @@ export interface FileNode extends Node {
 }
 
 export interface DescribeNode extends Node {
+  describeBlocks: DescribeNode[];
   type: "describe";
   tests: TestNode[];
   file: string;
@@ -51,9 +51,6 @@ export interface NodeVisitor {
 
 export const createRootNode = (id: string): RootNode => {
   return {
-    acceptVisitor(visitor) {
-      visitor.visitRootNode(this);
-    },
     files: [],
     folders: [],
     id,
@@ -63,9 +60,6 @@ export const createRootNode = (id: string): RootNode => {
 };
 
 export const createFolderNode = (id: string, label: string): FolderNode => ({
-  acceptVisitor(visitor) {
-    visitor.visitFolderNode(this);
-  },
   files: [],
   folders: [],
   id,
@@ -74,9 +68,6 @@ export const createFolderNode = (id: string, label: string): FolderNode => ({
 });
 
 export const createFileNode = (id: string, label: string, file: string): FileNode => ({
-  acceptVisitor(visitor) {
-    visitor.visitFileNode(this);
-  },
   describeBlocks: [],
   file,
   line: 1,  // TODO confirm that we are one indexed.
@@ -87,9 +78,7 @@ export const createFileNode = (id: string, label: string, file: string): FileNod
 });
 
 export const createDescribeNode = (id: string, label: string, file: string, line: number): DescribeNode => ({
-  acceptVisitor(visitor) {
-    visitor.visitDescribeNode(this);
-  },
+  describeBlocks: [],
   file,
   line,
   id,
@@ -99,9 +88,6 @@ export const createDescribeNode = (id: string, label: string, file: string, line
 });
 
 export const createTestNode = (id: string, label: string, file: string, line: number): TestNode => ({
-  acceptVisitor(visitor) {
-    visitor.visitTestNode(this);
-  },
   file,
   line,
   id,

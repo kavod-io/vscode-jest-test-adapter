@@ -1,4 +1,4 @@
-import { IParseResults, ItBlock } from "jest-editor-support";
+import { DescribeBlock, IParseResults, ItBlock, ParsedNodeTypes, Location } from "jest-editor-support";
 import _ from "lodash";
 import { parse, sep as pathSeparator } from "path";
 import { DESCRIBE_ID_SEPARATOR, TEST_ID_SEPARATOR } from "../constants";
@@ -8,8 +8,10 @@ import {
   createFolderNode,
   createRootNode,
   createTestNode,
+  DescribeNode,
   FolderNode,
   RootNode,
+  TestNode,
 } from "./tree";
 
 interface ParseInfo {
@@ -35,6 +37,8 @@ interface ParseInfo {
    */
   parseResult: IParseResults;
 }
+
+type Describe = Omit<DescribeBlock, "filter" | "addChild"> & { describeBlocks: Describe[]; tests: ItBlock[] };
 
 const process = (parseResults: IParseResults[], workspaceRoot: string, root: RootNode): RootNode => {
   const infos = _.chain(parseResults)
@@ -66,50 +70,13 @@ const process = (parseResults: IParseResults[], workspaceRoot: string, root: Roo
       currentFolderNode.files = currentFolderNode.files.concat(fileNode);
     }
 
-    const describeBlocksWithTests = describeBlocks.map(d => ({ ...d, itBlocks: [] as ItBlock[] }));
-    const standaloneTests = [] as ItBlock[];
+    const { describeBlocks: nestedDescribeBlocks, tests: standaloneTests } = mergeDescribeBlocksAndTests(
+      itBlocks,
+      describeBlocks,
+    );
 
-    itBlocks.forEach(it => {
-      const itStartLine = it.start.line;
-      const matchingDescribeBlock = describeBlocksWithTests.find(
-        d => d.start.line <= itStartLine && itStartLine <= d.end.line,
-      );
-      if (matchingDescribeBlock) {
-        matchingDescribeBlock.itBlocks.push(it);
-      } else {
-        standaloneTests.push(it);
-      }
-    });
-
-    // process all describe nodes...
-    describeBlocksWithTests.forEach(d => {
-      const expectedDescribeBlockId = `${fileNode!.id}${DESCRIBE_ID_SEPARATOR}${d.name}`;
-      let describeNode = fileNode!.describeBlocks.find(x => x.id === expectedDescribeBlockId);
-      if (!describeNode) {
-        describeNode = createDescribeNode(expectedDescribeBlockId, d.name, file, d.start.line - 1);
-        fileNode!.describeBlocks = fileNode!.describeBlocks.concat(describeNode);
-      }
-
-      // process all the tests within this describe block...
-      d.itBlocks.forEach(it => {
-        const expectedTestId = `${expectedDescribeBlockId}${TEST_ID_SEPARATOR}${it.name}`;
-        let testNode = describeNode!.tests.find(t => t.id === expectedTestId);
-        if (!testNode) {
-          testNode = createTestNode(expectedTestId, it.name, file, it.start.line - 1);
-          describeNode!.tests = describeNode!.tests.concat(testNode);
-        }
-      });
-    });
-
-    // process all test nodes...
-    standaloneTests.forEach(it => {
-      const expectedTestId = `${fileNode!.id}${TEST_ID_SEPARATOR}${it.name}`;
-      let testNode = fileNode!.tests.find(t => t.id === expectedTestId);
-      if (!testNode) {
-        testNode = createTestNode(expectedTestId, it.name, file, it.start.line - 1);
-        fileNode!.tests = fileNode!.tests.concat(testNode);
-      }
-    });
+    fileNode.describeBlocks = nestedDescribeBlocks.map(d => createDescribeNode2(d, fileNode!.id, file));
+    fileNode.tests = standaloneTests.map(t => createTestNode2(t, fileNode!.id, file));
   });
 
   return root;
@@ -144,6 +111,100 @@ const toParseInfo = (result: IParseResults, workspaceRoot: string): ParseInfo =>
         parseResult: result,
       },
     );
+};
+
+const createDescribeNode2 = (d: Describe, parentId: string, file: string): DescribeNode => {
+  const expectedDescribeBlockId = `${parentId}${DESCRIBE_ID_SEPARATOR}${d.name}`;
+  return {
+    ...createDescribeNode(expectedDescribeBlockId, d.name, file, d.start.line - 1),
+    describeBlocks: d.describeBlocks.map(x => createDescribeNode2(x, expectedDescribeBlockId, file)),
+    // file,
+    // id:expectedDescribeBlockId,
+    // label:d.name,
+    // line:d.start.line - 1,
+    tests: d.tests.map(t => createTestNode2(t, expectedDescribeBlockId, file)),
+    type: "describe",
+  };
+};
+
+const createTestNode2 = (t: ItBlock, parentId: string, file: string): TestNode => {
+  const expectedTestId = `${parentId}${TEST_ID_SEPARATOR}${t.name}`;
+  return createTestNode(expectedTestId, t.name, file, t.start.line - 1);
+};
+
+/**
+ * Takes the un-nested describe and test blocks and nests them appropriately based on the start and end positions of each.
+ * @param itBlocks The raw test blocks, un-nested.
+ * @param describeBlocks The raw describe blocks, un-nested.
+ */
+const mergeDescribeBlocksAndTests = (itBlocks: ItBlock[], describeBlocks: DescribeBlock[]): Describe => {
+  const createDummyDescribeBlock = (): Describe => {
+    const dummyLocation: Location = { column: -1, line: -1 };
+    return {
+      describeBlocks: [],
+      end: dummyLocation,
+      file: "",
+      name: "",
+      nameRange: { end: dummyLocation, start: dummyLocation },
+      start: dummyLocation,
+      tests: [],
+      type: ParsedNodeTypes.describe,
+    };
+  };
+
+  return itBlocks.reduce(
+    (acc, current) => mergeTestsWithDescribe(current, acc),
+    describeBlocks
+      .map(d => ({ ...d, tests: [], describeBlocks: [] } as Describe))
+      .reduce((acc, current) => mergeDescribeWithDescribe(current, acc), createDummyDescribeBlock()),
+  );
+};
+
+const mergeTestsWithDescribe = (test: ItBlock, describe: Describe): Describe => {
+  let foundNested = false;
+  return {
+    ...describe,
+    describeBlocks: describe.describeBlocks.map(d => {
+      if (isNested(test, d)) {
+        foundNested = true;
+        return mergeTestsWithDescribe(test, d);
+      } else {
+        return d;
+      }
+    }),
+    tests: foundNested ? describe.tests : describe.tests.concat(test),
+  };
+};
+
+const mergeDescribeWithDescribe = (potentialChild: Describe, potentialParent: Describe): Describe => {
+  let foundNested = false;
+  return {
+    ...potentialParent,
+    describeBlocks: potentialParent.describeBlocks
+      .map(d => {
+        if (isNested(potentialChild, d)) {
+          foundNested = true;
+          return mergeDescribeWithDescribe(potentialChild, d);
+        } else {
+          return d;
+        }
+      })
+      .concat(foundNested ? [] : potentialChild),
+  };
+};
+
+const isNested = (potentialChildDescribeOrTest: Describe | ItBlock, containingDescribe: Describe): boolean => {
+  const startIsBefore =
+    containingDescribe.start.line === potentialChildDescribeOrTest.start.line
+      ? containingDescribe.start.column < potentialChildDescribeOrTest.start.column
+      : containingDescribe.start.line < potentialChildDescribeOrTest.start.line;
+
+  const endIsAfter =
+    containingDescribe.end.line === potentialChildDescribeOrTest.end.line
+      ? containingDescribe.end.column > potentialChildDescribeOrTest.end.column
+      : containingDescribe.end.line > potentialChildDescribeOrTest.end.line;
+
+  return startIsBefore && endIsAfter;
 };
 
 const createTree = (parseResults: IParseResults[], workspaceRoot: string): RootNode =>

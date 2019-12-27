@@ -24,7 +24,7 @@ const mapFileNodeToTestSuite = (file: FileNode): TestSuiteInfo => ({
   children: file.describeBlocks
     .map(d => mapDescribeBlockToTestSuite(d) as TestSuiteInfo | TestInfo)
     .concat(file.tests.map(mapTestToTestInfo)),
-    description: "description",
+  description: "description",
   id: file.id,
   label: file.label,
   tooltip: "tooltip",
@@ -32,7 +32,9 @@ const mapFileNodeToTestSuite = (file: FileNode): TestSuiteInfo => ({
 });
 
 const mapDescribeBlockToTestSuite = (describe: DescribeNode): TestSuiteInfo => ({
-  children: describe.tests.map(mapTestToTestInfo),
+  children: describe.describeBlocks
+    .map(d => mapDescribeBlockToTestSuite(d) as TestInfo | TestSuiteInfo)
+    .concat(describe.tests.map(mapTestToTestInfo)),
   description: "description",
   file: describe.file,
   id: describe.id,

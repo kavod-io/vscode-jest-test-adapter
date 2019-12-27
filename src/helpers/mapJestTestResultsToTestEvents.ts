@@ -1,8 +1,8 @@
 import _ from "lodash";
 import { TestEvent } from "vscode-test-adapter-api";
-import { mapAssertionResultToTestId } from "./helpers/mapAssertionResultToTestId";
-import { mapJestAssertionToTestDecorations } from "./helpers/mapJestAssertionToTestDecorations";
-import { IJestResponse } from "./types";
+import { IJestResponse } from "../types";
+import { mapAssertionResultToTestId } from "./mapAssertionResultToTestId";
+import { mapJestAssertionToTestDecorations } from "./mapJestAssertionToTestDecorations";
 
 export function mapJestTestResultsToTestEvents(jestResponse: IJestResponse): TestEvent[] {
   return _.flatMap(jestResponse.results.testResults, fileResult =>

@@ -1,6 +1,6 @@
 import { JestTotalResults, Options, Runner, TestReconciler } from "jest-editor-support";
 import { WorkspaceFolder } from "vscode";
-import { initProjectWorkspace } from './initProjectWorkspace';
+import { initProjectWorkspace } from './helpers/initProjectWorkspace';
 import { IJestResponse, ITestFilter } from "./types";
 
 export enum DebugOutput {

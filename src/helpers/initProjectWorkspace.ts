@@ -1,6 +1,6 @@
 import { ProjectWorkspace } from "jest-editor-support";
 import { WorkspaceFolder } from "vscode";
-import { IJestManagerOptions } from "./JestManager";
+import { IJestManagerOptions } from "../JestManager";
 
 export const initProjectWorkspace = (options: IJestManagerOptions, workspace: WorkspaceFolder): ProjectWorkspace => {
   const configPath = options.pathToConfig(workspace);
