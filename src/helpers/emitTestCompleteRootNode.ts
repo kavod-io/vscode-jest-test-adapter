@@ -53,6 +53,7 @@ const emitTestCompleteDescribe = (
     suite: describe.id,
     type: "suite",
   });
+  describe.describeBlocks.forEach(d => emitTestCompleteDescribe(d, testEvents, eventEmitter))
   describe.tests.forEach(t => emitTestCompleteTest(t, testEvents, eventEmitter));
 };
 
@@ -115,6 +116,7 @@ const emitTestRunningDescribe = (
     suite: describe.id,
     type: "suite",
   });
+  describe.describeBlocks.forEach(d => emitTestRunningDescribe(d, eventEmitter))
   describe.tests.forEach(t => emitTestRunningTest(t, eventEmitter));
 };
 
