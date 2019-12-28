@@ -2,17 +2,7 @@ import { DescribeBlock, IParseResults, ItBlock, ParsedNodeTypes, Location } from
 import _ from "lodash";
 import { parse, sep as pathSeparator } from "path";
 import { DESCRIBE_ID_SEPARATOR, TEST_ID_SEPARATOR } from "../constants";
-import {
-  createDescribeNode,
-  createFileNode,
-  createFolderNode,
-  createRootNode,
-  createTestNode,
-  DescribeNode,
-  FolderNode,
-  RootNode,
-  TestNode,
-} from "./tree";
+import { createFileNode, createFolderNode, createRootNode, DescribeNode, FolderNode, RootNode, TestNode } from "./tree";
 
 interface ParseInfo {
   /**
@@ -38,9 +28,19 @@ interface ParseInfo {
   parseResult: IParseResults;
 }
 
+/**
+ * A type that contains the same data as the DescribeBlock but allows for nesting child describe nodes and tests.  Only
+ * used internally.
+ */
 type Describe = Omit<DescribeBlock, "filter" | "addChild"> & { describeBlocks: Describe[]; tests: ItBlock[] };
 
-const process = (parseResults: IParseResults[], workspaceRoot: string, root: RootNode): RootNode => {
+/**
+ * Creates a tree from the Jest Test Adapter parse results suitable
+ * @param parseResults The parse results from the Jest Test Adapter.
+ * @param workspaceRoot The root path of the current workspace.
+ */
+const createTree = (parseResults: IParseResults[], workspaceRoot: string): RootNode => {
+  const root: RootNode = createRootNode(workspaceRoot);
   const infos = _.chain(parseResults)
     .map(x => toParseInfo(x, workspaceRoot))
     .sortBy(x => x.folders.length > 0)
@@ -70,13 +70,14 @@ const process = (parseResults: IParseResults[], workspaceRoot: string, root: Roo
       currentFolderNode.files = currentFolderNode.files.concat(fileNode);
     }
 
-    const { describeBlocks: nestedDescribeBlocks, tests: standaloneTests } = mergeDescribeBlocksAndTests(
+    const { describeBlocks: nestedDescribeBlocks, tests: standaloneTests } = convertDescribeBlocksAndTests(
       itBlocks,
       describeBlocks,
+      file,
     );
 
-    fileNode.describeBlocks = nestedDescribeBlocks.map(d => createDescribeNode2(d, fileNode!.id, file));
-    fileNode.tests = standaloneTests.map(t => createTestNode2(t, fileNode!.id, file));
+    fileNode.describeBlocks = nestedDescribeBlocks;
+    fileNode.tests = standaloneTests;
   });
 
   return root;
@@ -113,23 +114,16 @@ const toParseInfo = (result: IParseResults, workspaceRoot: string): ParseInfo =>
     );
 };
 
-const createDescribeNode2 = (d: Describe, parentId: string, file: string): DescribeNode => {
-  const expectedDescribeBlockId = `${parentId}${DESCRIBE_ID_SEPARATOR}${d.name}`;
-  return {
-    ...createDescribeNode(expectedDescribeBlockId, d.name, file, d.start.line - 1),
-    describeBlocks: d.describeBlocks.map(x => createDescribeNode2(x, expectedDescribeBlockId, file)),
-    // file,
-    // id:expectedDescribeBlockId,
-    // label:d.name,
-    // line:d.start.line - 1,
-    tests: d.tests.map(t => createTestNode2(t, expectedDescribeBlockId, file)),
-    type: "describe",
-  };
-};
+const convertDescribeBlocksAndTests = (itBlocks: ItBlock[], describeBlocks: DescribeBlock[], file: string) => {
+  const { describeBlocks: nestedDescribeBlocks, tests: standaloneTests } = mergeDescribeBlocksAndTests(
+    itBlocks,
+    describeBlocks,
+  );
 
-const createTestNode2 = (t: ItBlock, parentId: string, file: string): TestNode => {
-  const expectedTestId = `${parentId}${TEST_ID_SEPARATOR}${t.name}`;
-  return createTestNode(expectedTestId, t.name, file, t.start.line - 1);
+  return {
+    describeBlocks: nestedDescribeBlocks.map(d => createDescribeNode(d, file, file)),
+    tests: standaloneTests.map(t => createTestNode(t, file, file)),
+  };
 };
 
 /**
@@ -158,6 +152,30 @@ const mergeDescribeBlocksAndTests = (itBlocks: ItBlock[], describeBlocks: Descri
       .map(d => ({ ...d, tests: [], describeBlocks: [] } as Describe))
       .reduce((acc, current) => mergeDescribeWithDescribe(current, acc), createDummyDescribeBlock()),
   );
+};
+
+const createDescribeNode = (d: Describe, parentId: string, file: string): DescribeNode => {
+  const expectedDescribeBlockId = `${parentId}${DESCRIBE_ID_SEPARATOR}${d.name}`;
+  return {
+    describeBlocks: d.describeBlocks.map(x => createDescribeNode(x, expectedDescribeBlockId, file)),
+    file,
+    id: expectedDescribeBlockId,
+    label: d.name,
+    line: d.start.line - 1,
+    tests: d.tests.map(t => createTestNode(t, expectedDescribeBlockId, file)),
+    type: "describe",
+  };
+};
+
+const createTestNode = (t: ItBlock, parentId: string, file: string): TestNode => {
+  const expectedTestId = `${parentId}${TEST_ID_SEPARATOR}${t.name}`;
+  return {
+    file,
+    id: expectedTestId,
+    label: t.name,
+    line: t.start.line - 1,
+    type: "test",
+  };
 };
 
 const mergeTestsWithDescribe = (test: ItBlock, describe: Describe): Describe => {
@@ -193,21 +211,23 @@ const mergeDescribeWithDescribe = (potentialChild: Describe, potentialParent: De
   };
 };
 
-const isNested = (potentialChildDescribeOrTest: Describe | ItBlock, containingDescribe: Describe): boolean => {
+/**
+ * Determines whether the containingDescribe node is an ancestor node of the potentialChild node.
+ * @param potentialChild A describe block or test that may be a child node.
+ * @param containingDescribe A describe block that may be an ancestor of the child node.
+ */
+const isNested = (potentialChild: Describe | ItBlock, containingDescribe: Describe): boolean => {
   const startIsBefore =
-    containingDescribe.start.line === potentialChildDescribeOrTest.start.line
-      ? containingDescribe.start.column <= potentialChildDescribeOrTest.start.column
-      : containingDescribe.start.line < potentialChildDescribeOrTest.start.line;
+    containingDescribe.start.line === potentialChild.start.line
+      ? containingDescribe.start.column <= potentialChild.start.column
+      : containingDescribe.start.line < potentialChild.start.line;
 
   const endIsAfter =
-    containingDescribe.end.line === potentialChildDescribeOrTest.end.line
-      ? containingDescribe.end.column >= potentialChildDescribeOrTest.end.column
-      : containingDescribe.end.line > potentialChildDescribeOrTest.end.line;
+    containingDescribe.end.line === potentialChild.end.line
+      ? containingDescribe.end.column >= potentialChild.end.column
+      : containingDescribe.end.line > potentialChild.end.line;
 
   return startIsBefore && endIsAfter;
 };
-
-const createTree = (parseResults: IParseResults[], workspaceRoot: string): RootNode =>
-  process(parseResults, workspaceRoot, createRootNode(workspaceRoot));
 
 export { createTree };
