@@ -196,12 +196,12 @@ const mergeDescribeWithDescribe = (potentialChild: Describe, potentialParent: De
 const isNested = (potentialChildDescribeOrTest: Describe | ItBlock, containingDescribe: Describe): boolean => {
   const startIsBefore =
     containingDescribe.start.line === potentialChildDescribeOrTest.start.line
-      ? containingDescribe.start.column < potentialChildDescribeOrTest.start.column
+      ? containingDescribe.start.column <= potentialChildDescribeOrTest.start.column
       : containingDescribe.start.line < potentialChildDescribeOrTest.start.line;
 
   const endIsAfter =
     containingDescribe.end.line === potentialChildDescribeOrTest.end.line
-      ? containingDescribe.end.column > potentialChildDescribeOrTest.end.column
+      ? containingDescribe.end.column >= potentialChildDescribeOrTest.end.column
       : containingDescribe.end.line > potentialChildDescribeOrTest.end.line;
 
   return startIsBefore && endIsAfter;
