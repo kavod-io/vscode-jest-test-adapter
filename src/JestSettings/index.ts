@@ -23,12 +23,8 @@ const convertToWorkspace = (projectConfig: ProjectConfig): ProjectWorkspace => {
     // jest config file exists.
     // quote the config file in case there is space chars.
     pathToConfig = `"${projectConfig.jestConfig}"`;
-    // the `--projects` command is kind of a workaround for setting the cwd to a directory other than the project root.
-    jestCommand = `${jestCommand} --projects "${projectConfig.jestConfig}"`;
   } else {
     // no jest config file.
-    // we don't add a `--projects` option since we are defaulting to the project root dir as the execution folder.
-
     // set pathToConfig to undefined.  This is a type error that should be fixed in jest-editor-support.
     pathToConfig = (undefined as unknown) as string;
   }

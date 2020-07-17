@@ -6,7 +6,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { Log } from "vscode-test-adapter-util";
 import { cancellationTokenNone, Matcher, TestFileParseResult } from "./types";
-import { convertErrorToString } from './utils';
+import { convertErrorToString } from "./utils";
 
 /**
  * Glob patterns to globally ignore when searching for tests.
@@ -172,14 +172,17 @@ class TestParser {
  * @param settings The Jest settings.
  */
 const createMatcher = (settings: JestSettings): Matcher => {
-  // TODO what to do if there is more than one config?...
-
-  if (settings?.configs?.length > 0 && settings.configs[0].testRegex?.length > 0) {
-    const regex = new RegExp(settings.configs[0].testRegex[0], process.platform === "win32" ? "i" : undefined);
-    return value => regex.test(value);
-  } else {
-    return value => mm.any(value, settings.configs[0].testMatch, { nocase: process.platform === "win32" });
-  }
+  return value => {
+    // Check whether the value matches any config
+    return settings.configs.some(config => {
+      if (config.testRegex?.length) {
+        const regex = new RegExp(config.testRegex[0], process.platform === "win32" ? "i" : undefined);
+        return regex.test(value);
+      } else {
+        return mm.any(value, config.testMatch, { nocase: process.platform === "win32" });
+      }
+    });
+  };
 };
 
 export { TestParser as default, createMatcher };
