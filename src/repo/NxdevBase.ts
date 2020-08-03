@@ -1,9 +1,9 @@
-import { JSONSchemaForNPMPackageJsonFiles } from "@schemastore/package";
 import fs from "fs";
-import _ from "lodash";
 import path from "path";
-import { gt } from "semver";
 import util from "util";
+import { JSONSchemaForNPMPackageJsonFiles } from "@schemastore/package";
+import _ from "lodash";
+import { gt } from "semver";
 import vscode from "vscode";
 import { Log } from "vscode-test-adapter-util";
 import { EXPERIMENTAL_NX_CLI_FEATURE_TOGGLE, EXTENSION_CONFIGURATION_NAME } from "../constants";
@@ -15,6 +15,8 @@ export const exists = util.promisify(fs.exists);
 export const readFile = util.promisify(fs.readFile);
 
 abstract class NxdevBase<T> extends RepoParserBase implements RepoParser {
+  private useExperimentalCli?: boolean;
+
   public abstract type: string;
 
   protected abstract configFileName: string;
@@ -22,8 +24,6 @@ abstract class NxdevBase<T> extends RepoParserBase implements RepoParser {
   protected abstract configFilter: (entry: [string, T]) => boolean;
 
   protected abstract configMap: (entry: [string, T]) => ProjectConfig;
-
-  private useExperimentalCli?: boolean;
 
   constructor(workspaceRoot: string, log: Log, pathToJest: string) {
     super(workspaceRoot, log, pathToJest);

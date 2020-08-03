@@ -87,25 +87,21 @@ export const isFolderNode = (node: { type: string }): node is FolderNode => {
   return node.type === "folder";
 }
 
-export const createWorkspaceRootNode = (): WorkspaceRootNode => {
-  return {
+export const createWorkspaceRootNode = (): WorkspaceRootNode => ({
     id: "root",
     label: "workspaceRootNode",
     projects: [],
     type: "workspaceRootNode",
-  };
-};
+});
 
-export const createProjectNode = (id: string, label: string, config: ProjectConfig): ProjectRootNode => {
-  return {
+export const createProjectNode = (id: string, label: string, config: ProjectConfig): ProjectRootNode => ({
     config,
     files: [],
     folders: [],
     id,
     label,
     type: "projectRootNode",
-  };
-};
+  });
 
 export const createFolderNode = (id: string, label: string): FolderNode => ({
   files: [],

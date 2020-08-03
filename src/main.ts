@@ -8,13 +8,11 @@ import pathToJestHelper from "./helpers/pathToJest";
 import { DebugOutput, JestTestAdapterOptions } from "./JestManager";
 
 function getJestAdapterOptions(): JestTestAdapterOptions {
-  const pathToJest = (w: vscode.WorkspaceFolder) => {
-    return (
+  const pathToJest = (w: vscode.WorkspaceFolder) => (
       vscode.workspace
         .getConfiguration(EXTENSION_CONFIGURATION_NAME, null)
         .get<string>("pathToJest") || pathToJestHelper(w)
     );
-  };
   const pathToConfig = () => pathToConfigHelper();
   return {
     debugOutput: vscode.workspace
@@ -25,7 +23,7 @@ function getJestAdapterOptions(): JestTestAdapterOptions {
   };
 }
 
-export async function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
 
   // create a simple logger that can be configured with the configuration variables

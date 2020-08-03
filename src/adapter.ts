@@ -30,8 +30,8 @@ import { convertErrorToString } from "./utils";
 type TestStateCompatibleEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
 
 export default class JestTestAdapter implements TestAdapter {
-  private isLoadingTests: boolean = false;
-  private isRunningTests: boolean = false;
+  private isLoadingTests = false;
+  private isRunningTests = false;
   private disposables: IDisposable[] = [];
   private tree: WorkspaceRootNode = createWorkspaceRootNode();
   private readonly testsEmitter = new vscode.EventEmitter<TestLoadStartedEvent | TestLoadFinishedEvent>();
@@ -271,6 +271,7 @@ export default class JestTestAdapter implements TestAdapter {
 
   /**
    * Invalidates all the tests for the given files.  This works because the file paths are used ids for the tests suites.
+   *
    * @param testFiles The files to invalidate the results for.
    */
   private retireTestFiles(testFiles: string[]) {

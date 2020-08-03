@@ -1,8 +1,8 @@
 import fs from "fs";
+import * as path from "path";
 import { JestSettings, parse as editorSupportParse } from "jest-editor-support";
 import _ from "lodash";
 import * as mm from "micromatch";
-import * as path from "path";
 import * as vscode from "vscode";
 import { Log } from "vscode-test-adapter-util";
 import { lowerCaseDriveLetter } from "./helpers/mapAssertionResultToTestId";
@@ -16,7 +16,7 @@ import { convertErrorToString } from "./utils";
 const IGNORE_GLOBS = ["node_modules"];
 
 class TestParser {
-  public constructor(
+  constructor(
     private readonly rootPath: string,
     private readonly log: Log,
     private readonly settings: JestSettings,
@@ -58,6 +58,7 @@ class TestParser {
    * If the path is a directory, it will recursively explore it.
    * If the path is a file, it will parse the contents and search for test blocks.
    * If the directory or file did not include any tests, null will be returned.
+   *
    * @param filePath The file path to evaluate.
    * @param matcher The matcher function to use to determine if a file includes tests.
    */
@@ -78,6 +79,7 @@ class TestParser {
 
   /**
    * Returns true if the specified path is a directory, false otherwise.
+   *
    * @param directory The full file system path to the check.
    */
   private checkIsDirectory(
@@ -105,6 +107,7 @@ class TestParser {
 
   /**
    * Explores a directory recursively and returns the TestSuiteInfo representing the directory.
+   *
    * @param directory The full file system path to the directory.
    * @param matcher The matcher function to use to determine if a file includes tests.
    */
@@ -122,6 +125,7 @@ class TestParser {
    * Parses the given test file using `jest-editor-support`'s `parse` method.  If there are parsing errors, will return
    * a placeholder result with empty tests.  In future, this will return an error object to display the results to the
    * user.
+   *
    * @param file the path of the file to parse.
    */
   private parse(file: string): TestFileParseResult {
@@ -142,6 +146,7 @@ class TestParser {
    * Retrieves the contents of a directory and outputs their absolute paths.
    * Includes both files and directories.
    * Excludes glob patterns included in IGNORE_GLOBS.
+   *
    * @param directory Returns an array of absolute paths representing the items within the directory.
    */
   private getDirectoryContents(
@@ -170,16 +175,15 @@ class TestParser {
 
 /**
  * Creates a matcher function that returns true if a file should be explored for tests, false otherwise.
+ * 
  * @param settings The Jest settings.
  */
-const createMatcher = (settings: JestSettings): Matcher => {
-  return value => {
-    return settings.configs.some(c => {
+const createMatcher = (settings: JestSettings): Matcher => value => settings.configs.some(c => {
       // first check if there are any ignored paths.
       const isIgnored = c.testPathIgnorePatterns
         ?.map(lowerCaseDriveLetter)
         ?.some(p => {
-          const matches = value.match(p);
+          const matches = value.match(p); // eslint-disable-line @typescript-eslint/prefer-regexp-exec
           return matches && matches.length > 0;
         });
 
@@ -196,7 +200,5 @@ const createMatcher = (settings: JestSettings): Matcher => {
 
       return mm.any(value, c.testMatch, { nocase: process.platform === "win32" });
     });
-  };
-};
 
 export { TestParser as default, createMatcher };

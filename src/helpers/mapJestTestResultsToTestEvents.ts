@@ -14,7 +14,7 @@ import { searchWorkspaceRoot } from "./treeSearch";
 export function mapJestTestResultsToTestEvents(jestResponse: IJestResponse, tree: ProjectRootNode): TestEvent[] {
   return _.flatMap(jestResponse.results.testResults, fileResult => {
     // TODO we cannot easily tell the difference between when we have failing tests and an error running a test file.
-    // Currently we just check if there are any assertionResults.  Ideally it would be better if the status was 'errored'
+    // Currently we just check if there are any assertionResults. Ideally it would be better if the status was 'errored'
     if (fileResult.status === "passed" || fileResult.assertionResults.length > 0) {
       return fileResult.assertionResults.map(
         assertionResult =>
@@ -57,6 +57,4 @@ export function mapJestTestResultsToTestEvents(jestResponse: IJestResponse, tree
   });
 }
 
-const getTests = (file: FileNode | DescribeNode): TestNode[] => {
-  return _.flatMap(file.describeBlocks.map(d => getTests(d))).concat(file.tests);
-};
+const getTests = (file: FileNode | DescribeNode): TestNode[] => _.flatMap(file.describeBlocks.map(d => getTests(d))).concat(file.tests);

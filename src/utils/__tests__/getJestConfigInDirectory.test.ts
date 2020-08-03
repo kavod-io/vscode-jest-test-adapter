@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { getJestConfigInDirectory } from "..";
 import { createFileSystem, resetFileSystem } from "./testHelper";
 

@@ -5,7 +5,7 @@ export function mapJestAssertionToTestDecorations(
   assertionResult: JestAssertionResults,
   fileName: string,
   reconciler: TestReconciler,
-) {
+): TestDecoration[] {
   // TODO convert this to functional code.
   const decorations: TestDecoration[] = [];
 

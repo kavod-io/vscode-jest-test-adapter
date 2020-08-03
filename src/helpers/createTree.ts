@@ -1,6 +1,5 @@
-import { DescribeBlock, ItBlock, Location, ParsedNodeTypes } from "jest-editor-support";
-import _ from "lodash";
 import { parse, sep as pathSeparator } from "path";
+import { DescribeBlock, ItBlock, Location, ParsedNodeTypes } from "jest-editor-support";
 import { DESCRIBE_ID_SEPARATOR, PROJECT_ID_SEPARATOR, TEST_ID_SEPARATOR } from "../constants";
 import { TestFileParseResult } from "../types";
 import {
@@ -151,7 +150,9 @@ const convertDescribeBlocksAndTests = (
 };
 
 /**
- * Takes the un-nested describe and test blocks and nests them appropriately based on the start and end positions of each.
+ * Takes the un-nested describe and test blocks and nests them appropriately
+ * based on the start and end positions of each.
+ *
  * @param itBlocks The raw test blocks, un-nested.
  * @param describeBlocks The raw describe blocks, un-nested.
  */
@@ -239,6 +240,7 @@ const mergeDescribeWithDescribe = (potentialChild: Describe, potentialParent: De
 
 /**
  * Determines whether the containingDescribe node is an ancestor node of the potentialChild node.
+ *
  * @param potentialChild A describe block or test that may be a child node.
  * @param containingDescribe A describe block that may be an ancestor of the child node.
  */

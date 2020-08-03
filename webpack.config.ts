@@ -1,8 +1,6 @@
 import path from "path";
 import webpack from "webpack";
 
-// tslint:disable: object-literal-sort-keys
-
 /**
  * This webpack configuration is used to bundle the javascript extension to optimise the performance and size of 
  * extension.

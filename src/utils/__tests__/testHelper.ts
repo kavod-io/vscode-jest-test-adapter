@@ -1,4 +1,5 @@
-import  fs  from "fs";
+/* eslint-disable */
+import fs from "fs";
 
 const resetFileSystem = () => (fs as any).vol.reset();
 

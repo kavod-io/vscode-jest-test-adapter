@@ -64,9 +64,7 @@ export default class JestManager {
     this.activeRunners.add(runner);
     return (
       runner
-        // // tslint:disable-next-line:no-console
         // .on("executableStdErr", (x: Buffer) => console.log(x.toString()))
-        // // tslint:disable-next-line:no-console
         // .on("executableOutput", (x) => console.log(x))
         .once("debuggerProcessExit", () => this.activeRunners.delete(runner))
     );
