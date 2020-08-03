@@ -49,7 +49,7 @@
     "@schemastore/package": "0.0.5",
     "cosmiconfig": "^6.0.0",
     "jest-editor-support": "^27.1.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "micromatch": "^4.0.2",
     "semver": "^7.3.2",
     "tslib": "^1.11.1",
