@@ -93,6 +93,9 @@ const filterDescribeBlocks = (describeBlocks: DescribeNode[], testNames: string[
       return { ...f, tests: filterTests(f.tests, testNames) };
     });
 
-const filterTests = (tests: TestNode[], testNames: string[]): TestNode[] => tests.filter(f => testNames.some(t => t.startsWith(f.id)));
+const filterTests = (
+  tests: TestNode[],
+  testNames: string[]
+): TestNode[] => tests.filter(f => testNames.some(t => t.startsWith(f.id)));
 
 export { filterTree };

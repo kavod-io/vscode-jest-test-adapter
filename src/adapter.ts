@@ -47,7 +47,7 @@ export default class JestTestAdapter implements TestAdapter {
   ) {
     this.jestManager = new JestManager();
 
-    this.log.info(`Created adapter for workspace: ${workspace.uri.fsPath} with options: ${JSON.stringify(options)}`)
+    this.log.info(`Created adapter for workspace: ${workspace.uri.fsPath} with options: ${JSON.stringify(options)}`);
 
     this.disposables.push(this.testsEmitter);
     this.disposables.push(this.testStatesEmitter);
@@ -270,7 +270,7 @@ export default class JestTestAdapter implements TestAdapter {
   }
 
   /**
-   * Invalidates all the tests for the given files.  This works because the file paths are used ids for the tests suites.
+   * Invalidates all the tests for the given files. This works because the file paths are used ids for the tests suites.
    *
    * @param testFiles The files to invalidate the results for.
    */
@@ -287,7 +287,7 @@ export default class JestTestAdapter implements TestAdapter {
     this.retireEmitter.fire({});
   }
 
-  private logSuite(suiteOrTest?: TestSuiteInfo|TestInfo, depth: number = 0): void {
+  private logSuite(suiteOrTest?: TestSuiteInfo|TestInfo, depth = 0): void {
     if (_.isNil(suiteOrTest)) { return; }
 
     const indent = (inDepth: number): string => Array(inDepth).fill("  ").join("");

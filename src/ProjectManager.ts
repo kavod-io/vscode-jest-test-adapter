@@ -87,7 +87,7 @@ class ProjectManager {
           type: "projectAppUpdated",
         });
 
-        this.log.info(`Application file changed: ${JSON.stringify(event)}`)
+        this.log.info(`Application file changed: ${JSON.stringify(event)}`);
         break;
 
       case "Test":
@@ -104,7 +104,7 @@ class ProjectManager {
           type: "projectTestsUpdated",
         });
 
-        this.log.info(`Test file changed: ${JSON.stringify(event)}`)
+        this.log.info(`Test file changed: ${JSON.stringify(event)}`);
         break;
     }
   }
@@ -130,7 +130,7 @@ class ProjectManager {
           type: "projectAdded",
         });
 
-        this.log.info(`New project added: ${JSON.stringify(event.config)} ${JSON.stringify(newProject)}`)
+        this.log.info(`New project added: ${JSON.stringify(event.config)} ${JSON.stringify(newProject)}`);
         break;
 
       case "removed":
@@ -144,7 +144,7 @@ class ProjectManager {
           type: "projectRemoved",
         });
 
-        this.log.info(`Project removed: ${JSON.stringify(event)}`)
+        this.log.info(`Project removed: ${JSON.stringify(event)}`);
         break;
     }
   }

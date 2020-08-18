@@ -77,6 +77,9 @@ const searchFileOrDescribeNode = (
   }
 };
 
-const searchTest = (test: TestNode, matchFunction: (node: Node) => boolean): Node | null => matchFunction(test) ? test : null;
+const searchTest = (
+  test: TestNode,
+  matchFunction: (node: Node) => boolean
+): Node | null => matchFunction(test) ? test : null;
 
-export {searchProjectRootOrFolder, searchWorkspaceRoot}
+export {searchProjectRootOrFolder, searchWorkspaceRoot};

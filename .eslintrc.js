@@ -69,7 +69,7 @@ module.exports = {
         "@typescript-eslint/prefer-for-of": "error",
         "@typescript-eslint/prefer-function-type": "error",
         "@typescript-eslint/quotes": "off",
-        "@typescript-eslint/semi": ["off", null],
+        "@typescript-eslint/semi": ["error", "always"],
         "@typescript-eslint/type-annotation-spacing": "off",
         "@typescript-eslint/unified-signatures": "error",
         "arrow-body-style": "error",

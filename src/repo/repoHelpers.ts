@@ -13,7 +13,7 @@ const getProjectName = async (workspaceRoot: string): Promise<string> => {
       const json = JSON.parse((await buffer).toString()) as { displayName?: string, name?: string };
       return json.displayName || json.name || "default";
     } catch {
-      return "default"
+      return "default";
     }
   }
 

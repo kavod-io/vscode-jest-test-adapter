@@ -1,7 +1,7 @@
 import { FolderNode, ProjectRootNode } from "./tree";
 
 const deleteFileFromTree = (tree: ProjectRootNode, fileToDelete: string): ProjectRootNode =>
-deleteFileFromProjectRootOrFolder(tree, fileToDelete)
+deleteFileFromProjectRootOrFolder(tree, fileToDelete);
 
 const deleteFileFromProjectRootOrFolder = <T extends FolderNode | ProjectRootNode>(
   folder: T,
