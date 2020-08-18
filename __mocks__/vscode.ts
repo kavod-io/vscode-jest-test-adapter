@@ -24,7 +24,7 @@ const OverviewRulerLane = {
 };
 
 const Uri = {
-  file: (f: any) => f,
+  file: (f: any) => f, // eslint-disable-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any
   parse: jest.fn()
 };
 // const Range = jest.fn();

@@ -7,13 +7,11 @@ import {
 } from "jest-editor-support";
 import { ProjectConfig } from "../repo";
 
-const getSettings = (projectConfig: ProjectConfig): Promise<JestSettings> => {
-  return editorSupportGetSettings(convertToWorkspace(projectConfig));
-};
+const getSettings = (projectConfig: ProjectConfig): Promise<JestSettings> =>
+  editorSupportGetSettings(convertToWorkspace(projectConfig));
 
-const createRunner = (projectConfig: ProjectConfig, options: Options) => {
-  return new Runner(convertToWorkspace(projectConfig), options);
-};
+const createRunner = (projectConfig: ProjectConfig, options: Options): Runner =>
+  new Runner(convertToWorkspace(projectConfig), options);
 
 const convertToWorkspace = (projectConfig: ProjectConfig): ProjectWorkspace => {
   let jestCommand = projectConfig.jestCommand;

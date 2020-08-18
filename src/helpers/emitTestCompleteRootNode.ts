@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { TestEvent, TestRunFinishedEvent, TestRunStartedEvent, TestSuiteEvent } from "vscode-test-adapter-api";
 import { mapDescribeBlockToTestSuite, mapTestToTestInfo } from "./mapTreeToSuite";
 import {

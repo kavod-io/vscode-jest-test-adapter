@@ -20,19 +20,17 @@ function filterTree(
 
   switch (tree.type) {
     case "workspaceRootNode":
-      return filterWorkspace(tree as WorkspaceRootNode, testNames);
+      return filterWorkspace(tree, testNames);
 
     case "projectRootNode":
-      return filterProject(tree as ProjectRootNode, testNames);
+      return filterProject(tree, testNames);
   }
 }
 
-const filterWorkspace = (tree: WorkspaceRootNode, testNames: string[]): WorkspaceRootNode => {
-  return {
+const filterWorkspace = (tree: WorkspaceRootNode, testNames: string[]): WorkspaceRootNode => ({
     ...tree,
     projects: tree.projects.map(p => filterProject(p, testNames)),
-  };
-};
+  });
 
 const filterProject = (project: ProjectRootNode, testNames: string[]): ProjectRootNode => {
   // if we have been passed a test name that is an exact match for a project, then we should return the whole project.
@@ -47,8 +45,7 @@ const filterProject = (project: ProjectRootNode, testNames: string[]): ProjectRo
   };
 };
 
-const filterFolders = (folders: FolderNode[], testNames: string[]): FolderNode[] => {
-  return folders
+const filterFolders = (folders: FolderNode[], testNames: string[]): FolderNode[] => folders
     .filter(f => testNames.some(t => t.startsWith(f.id)))
     .map(f => {
       if (testNames.some(t => t === f.id)) {
@@ -56,13 +53,11 @@ const filterFolders = (folders: FolderNode[], testNames: string[]): FolderNode[]
       }
       return { ...f, folders: filterFolders(f.folders, testNames), files: filterFiles(f.files, testNames) };
     });
-};
 
 const filterFiles = (
   files: Array<FileNode | FileWithParseErrorNode>,
   testNames: string[],
-): Array<FileNode | FileWithParseErrorNode> => {
-  return files
+): Array<FileNode | FileWithParseErrorNode> => files
     .filter(f => testNames.some(t => t.startsWith(f.id)))
     .reduce((acc, f) => {
       if (testNames.some(t => t === f.id)) {
@@ -88,10 +83,8 @@ const filterFiles = (
 
       return acc;
     }, [] as Array<FileNode | FileWithParseErrorNode>);
-};
 
-const filterDescribeBlocks = (describeBlocks: DescribeNode[], testNames: string[]): DescribeNode[] => {
-  return describeBlocks
+const filterDescribeBlocks = (describeBlocks: DescribeNode[], testNames: string[]): DescribeNode[] => describeBlocks
     .filter(f => testNames.some(t => t.startsWith(f.id)))
     .map(f => {
       if (testNames.some(t => t === f.id)) {
@@ -99,10 +92,10 @@ const filterDescribeBlocks = (describeBlocks: DescribeNode[], testNames: string[
       }
       return { ...f, tests: filterTests(f.tests, testNames) };
     });
-};
 
-const filterTests = (tests: TestNode[], testNames: string[]): TestNode[] => {
-  return tests.filter(f => testNames.some(t => t.startsWith(f.id)));
-};
+const filterTests = (
+  tests: TestNode[],
+  testNames: string[]
+): TestNode[] => tests.filter(f => testNames.some(t => t.startsWith(f.id)));
 
 export { filterTree };

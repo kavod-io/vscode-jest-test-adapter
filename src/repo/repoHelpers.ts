@@ -8,9 +8,13 @@ const readFile = util.promisify(fs.readFile);
 
 const getProjectName = async (workspaceRoot: string): Promise<string> => {
   if (await exists(path.resolve(workspaceRoot, "package.json"))) {
-    const buffer = readFile(path.resolve(workspaceRoot, "package.json"));
-    const json = JSON.parse((await buffer).toString());
-    return json.displayName || json.name;
+    try {
+      const buffer = readFile(path.resolve(workspaceRoot, "package.json"));
+      const json = JSON.parse((await buffer).toString()) as { displayName?: string, name?: string };
+      return json.displayName || json.name || "default";
+    } catch {
+      return "default";
+    }
   }
 
   return "default";

@@ -1,5 +1,4 @@
-import _ from "lodash";
-import vscode from "vscode";
+import vscode, { Event } from "vscode";
 import { Log } from "vscode-test-adapter-util";
 import { createWorkspaceRootNode, WorkspaceRootNode } from "./helpers/tree";
 import { JestTestAdapterOptions } from "./JestManager";
@@ -24,7 +23,7 @@ class ProjectManager {
     this.projectsChangedEmitter = new vscode.EventEmitter<ProjectsChangedEvent>();
   }
 
-  public get projectsChanged() {
+  get projectsChanged(): Event<ProjectsChangedEvent> {
     return this.projectsChangedEmitter.event;
   }
 
@@ -34,7 +33,7 @@ class ProjectManager {
     if (!this.repoParser) {
       this.repoParser = await getRepoParser(this.workspace.uri.fsPath, this.log, jestPath);
       if (this.repoParser) {
-        this.disposables.push(this.repoParser.projectChange(this.handleProjectChange));
+        this.disposables.push(this.repoParser.projectChange(event => this.handleProjectChange(event)));
       } else {
         // we return the default WorkspaceRootNode in the case we don't find a valid RepoParser.
         this.log.info(`No RepoParser available for project: ${this.workspace.uri.fsPath}`);
@@ -88,7 +87,7 @@ class ProjectManager {
           type: "projectAppUpdated",
         });
 
-        this.log.info(`Application file changed: ${JSON.stringify(event)}`)
+        this.log.info(`Application file changed: ${JSON.stringify(event)}`);
         break;
 
       case "Test":
@@ -105,7 +104,7 @@ class ProjectManager {
           type: "projectTestsUpdated",
         });
 
-        this.log.info(`Test file changed: ${JSON.stringify(event)}`)
+        this.log.info(`Test file changed: ${JSON.stringify(event)}`);
         break;
     }
   }
@@ -131,7 +130,7 @@ class ProjectManager {
           type: "projectAdded",
         });
 
-        this.log.info(`New project added: ${event.config} ${newProject}`)
+        this.log.info(`New project added: ${JSON.stringify(event.config)} ${JSON.stringify(newProject)}`);
         break;
 
       case "removed":
@@ -145,13 +144,13 @@ class ProjectManager {
           type: "projectRemoved",
         });
 
-        this.log.info(`Project removed: ${event}`)
+        this.log.info(`Project removed: ${JSON.stringify(event)}`);
         break;
     }
   }
 
   private async addNewTestLoader(projectConfig: ProjectConfig, jestPath: string): Promise<TestLoader> {
-    this.log.info(`Loading Jest settings from ${projectConfig.jestConfig}...`);
+    this.log.info(`Loading Jest settings from ${JSON.stringify(projectConfig.jestConfig)}...`);
     const settings = await getSettings(projectConfig);
 
     if (settings.configs.length > 1) {

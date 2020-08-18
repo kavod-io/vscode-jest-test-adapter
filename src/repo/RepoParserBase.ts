@@ -10,7 +10,7 @@ export default class RepoParserBase implements Pick<RepoParser, "projectChange">
     this.projectChangedEmitter = new vscode.EventEmitter<any>();
   }
 
-  public get projectChange() {
+  get projectChange() {
     return this.projectChangedEmitter.event;
   }
 

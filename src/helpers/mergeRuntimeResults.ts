@@ -14,8 +14,7 @@ import {
 } from "./tree";
 
 const mergeRuntimeResults = (tree: ProjectRootNode, testResults: JestFileResults[]): ProjectRootNode => {
-  const filesUpdate = (files: Array<FileNode | FileWithParseErrorNode>) => {
-    return files.map(f => {
+  const filesUpdate = (files: Array<FileNode | FileWithParseErrorNode>) => files.map(f => {
       const result = testResults.filter(x => lowerCaseDriveLetter(x.name) === f.file)[0];
       if (!result) {
         return f;
@@ -78,7 +77,6 @@ const mergeRuntimeResults = (tree: ProjectRootNode, testResults: JestFileResults
         f,
       );
     });
-  };
 
   const foldersUpdate = (folders: FolderNode[]): FolderNode[] =>
     folders.map(f => ({

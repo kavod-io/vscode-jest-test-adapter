@@ -21,7 +21,7 @@ const getRepoParser = async (workspaceRoot: string, log: Log, pathToJest: string
   ).then(x => x.filter(z => z.match).map(z => z.parser));
 
   const parser = matchingParsers[0] ?? null;
-  log.info(`Selected parser: ${parser?.type || 'none'}`)
+  log.info(`Selected parser: ${parser?.type || 'none'}`);
   return parser;
 };
 

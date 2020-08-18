@@ -1,5 +1,4 @@
 import { JestSettings } from "jest-editor-support";
-import _ from "lodash";
 import * as vscode from "vscode";
 import { Log } from "vscode-test-adapter-util";
 import { mergeTree } from "./helpers/createTree";
@@ -55,7 +54,7 @@ class TestLoader {
   private promise: Promise<any> | null = null; // TODO maybe this should be a cancelable promise?
   private testParser: TestParser;
 
-  public constructor(
+  constructor(
     private readonly settings: JestSettings,
     private readonly log: Log,
     private readonly projectConfig: ProjectConfig,
@@ -78,14 +77,13 @@ class TestLoader {
     return this.environmentChangedEmitter.event;
   }
 
-  public async getTestState(forceReload: boolean = false): Promise<ProjectTestState> {
+  public async getTestState(forceReload = false): Promise<ProjectTestState> {
     if (forceReload) {
       if (this.promise) {
         // TODO handle if we are force reloading with an existing promise.  Need to cancel.
       }
 
       this.log.info(`Force loading all tests...`);
-      const self = this;
 
       // Parse all files again.
       this.promise = this.testParser
@@ -96,7 +94,7 @@ class TestLoader {
         })
         .then(() => this.log.info(`Force loading process completed.`))
         .catch(error => this.log.error("Error while reloading all tests.", convertErrorToString(error)))
-        .finally(() => (self.promise = null));
+        .finally(() => (this.promise = null));
 
       await this.promise;
     } else if (this.promise) {
@@ -119,7 +117,7 @@ class TestLoader {
     this.log.info("TestLoader disposed");
   }
 
-  private async handleCreatedFile(uri: vscode.Uri, matcher: Matcher) {
+  private handleCreatedFile(uri: vscode.Uri, matcher: Matcher) {
     const filePath = uri.fsPath;
     const fileType = getFileType(filePath, matcher);
     switch (fileType) {
@@ -140,13 +138,13 @@ class TestLoader {
     }
   }
 
-  private async handleDeletedFile(uri: vscode.Uri, matcher: Matcher) {
+  private handleDeletedFile(uri: vscode.Uri, matcher: Matcher) {
     const filePath = uri.fsPath;
     const fileType = getFileType(filePath, matcher);
     switch (fileType) {
       case "App":
-        // we'll invalidate all files now when an application file is removed, since we don't know which tests might be
-        // affected.
+        // we'll invalidate all files now when an application file is removed,
+        // since we don't know which tests might be affected.
         this.environmentChangedEmitter.fire({
           invalidatedTestIds: ["root"],
           type: fileType,
@@ -165,13 +163,13 @@ class TestLoader {
     }
   }
 
-  private async handleChangedFile(uri: vscode.Uri, matcher: Matcher) {
+  private handleChangedFile(uri: vscode.Uri, matcher: Matcher) {
     const filePath = uri.fsPath;
     const fileType = getFileType(filePath, matcher);
     switch (fileType) {
       case "App":
-        // we'll invalidate all files now when an application file is changed, since we don't know which tests might be
-        // affected.
+        // we'll invalidate all files now when an application file is changed,
+        // since we don't know which tests might be affected.
         this.environmentChangedEmitter.fire({
           invalidatedTestIds: ["root"],
           type: fileType,
@@ -182,7 +180,12 @@ class TestLoader {
         this.testFiles.add(filePath);
         const parseResults = this.testParser.parseFiles([filePath]);
         // Removing the file from the tree and then merge it back in should correctly update the tree.
-        this.tree = mergeTree(deleteFileFromTree(this.tree, filePath), parseResults, this.projectConfig.rootPath, false);
+        this.tree = mergeTree(
+          deleteFileFromTree(this.tree, filePath),
+          parseResults,
+          this.projectConfig.rootPath,
+          false
+        );
         this.environmentChangedEmitter.fire({
           ...getDefaultTestEnvironmentChangedEvent(this.testFiles, this.tree),
           invalidatedTestIds: [filePath],

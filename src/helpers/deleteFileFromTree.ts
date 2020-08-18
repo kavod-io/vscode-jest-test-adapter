@@ -1,9 +1,12 @@
 import { FolderNode, ProjectRootNode } from "./tree";
 
 const deleteFileFromTree = (tree: ProjectRootNode, fileToDelete: string): ProjectRootNode =>
-deleteFileFromProjectRootOrFolder(tree, fileToDelete)
+deleteFileFromProjectRootOrFolder(tree, fileToDelete);
 
-const deleteFileFromProjectRootOrFolder = <T extends FolderNode | ProjectRootNode>(folder: T, fileToDelete: string): T => {
+const deleteFileFromProjectRootOrFolder = <T extends FolderNode | ProjectRootNode>(
+  folder: T,
+  fileToDelete: string
+): T => {
   const files = folder.files.filter(f => f.file !== fileToDelete);
 
   // map recursively the current folders.  We also exclude any folders without files or child folders.

@@ -1,8 +1,8 @@
-import { Dependency, JSONSchemaForNPMPackageJsonFiles } from "@schemastore/package";
 import fs from "fs";
-import _ from "lodash";
 import path from "path";
 import util from "util";
+import _ from "lodash";
+import { Dependency, JSONSchemaForNPMPackageJsonFiles } from "@schemastore/package";
 import { Log } from "vscode-test-adapter-util";
 import { getJestConfigInDirectory } from "../utils";
 import { getProjectName, getTsConfig } from "./repoHelpers";

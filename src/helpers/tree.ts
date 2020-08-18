@@ -79,33 +79,25 @@ export interface NodeVisitor {
   visitTestNode: (test: TestNode) => void;
 }
 
-export const isProjectRootNode = (node: { type: string }): node is ProjectRootNode => {
-  return node.type === "projectRootNode";
-}
+export const isProjectRootNode = (node: { type: string }): node is ProjectRootNode => node.type === "projectRootNode";
 
-export const isFolderNode = (node: { type: string }): node is FolderNode => {
-  return node.type === "folder";
-}
+export const isFolderNode = (node: { type: string }): node is FolderNode => node.type === "folder";
 
-export const createWorkspaceRootNode = (): WorkspaceRootNode => {
-  return {
+export const createWorkspaceRootNode = (): WorkspaceRootNode => ({
     id: "root",
     label: "workspaceRootNode",
     projects: [],
     type: "workspaceRootNode",
-  };
-};
+});
 
-export const createProjectNode = (id: string, label: string, config: ProjectConfig): ProjectRootNode => {
-  return {
+export const createProjectNode = (id: string, label: string, config: ProjectConfig): ProjectRootNode => ({
     config,
     files: [],
     folders: [],
     id,
     label,
     type: "projectRootNode",
-  };
-};
+  });
 
 export const createFolderNode = (id: string, label: string): FolderNode => ({
   files: [],
@@ -140,7 +132,13 @@ export const createFileWithParseErrorNode = (
   type: "fileWithParseError",
 });
 
-export const createDescribeNode = (id: string, label: string, file: string, line: number | undefined, runtimeDiscovered: boolean): DescribeNode => ({
+export const createDescribeNode = (
+  id: string,
+  label: string,
+  file: string,
+  line: number | undefined,
+  runtimeDiscovered: boolean
+): DescribeNode => ({
   describeBlocks: [],
   file,
   id,
@@ -151,7 +149,13 @@ export const createDescribeNode = (id: string, label: string, file: string, line
   type: "describe",
 });
 
-export const createTestNode = (id: string, label: string, file: string, line: number | undefined, runtimeDiscovered: boolean): TestNode => ({
+export const createTestNode = (
+  id: string,
+  label: string,
+  file: string,
+  line: number | undefined,
+  runtimeDiscovered: boolean
+): TestNode => ({
   file,
   id,
   label,
