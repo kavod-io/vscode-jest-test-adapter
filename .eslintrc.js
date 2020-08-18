@@ -2,10 +2,10 @@ module.exports = {
   env: {
     es6: true,
     node: true,
-	},
-	extends: [
-		"prettier",
-	],
+  },
+  extends: [
+    "prettier",
+  ],
   plugins: [
       "@typescript-eslint",
       "import",
@@ -15,8 +15,8 @@ module.exports = {
   overrides: [
     {
       files: [
-				"./**/*.ts?(x)"
-			],
+        "./**/*.ts?(x)"
+      ],
       extends: [
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
@@ -27,7 +27,6 @@ module.exports = {
         sourceType: "module",
       },
       rules: {
-        "@typescript-eslint/adjacent-overload-signatures": "error",
         "@typescript-eslint/array-type": [
           "error",
           {
@@ -64,25 +63,13 @@ module.exports = {
         "@typescript-eslint/member-ordering": "error",
         "@typescript-eslint/no-empty-function": "error",
         "@typescript-eslint/no-empty-interface": "error",
-        "@typescript-eslint/no-misused-new": "error",
-        "@typescript-eslint/no-namespace": "error",
         "@typescript-eslint/no-parameter-properties": "off",
         "@typescript-eslint/no-unused-expressions": "error",
         "@typescript-eslint/no-use-before-define": "off",
-        "@typescript-eslint/no-var-requires": "error",
         "@typescript-eslint/prefer-for-of": "error",
         "@typescript-eslint/prefer-function-type": "error",
-        "@typescript-eslint/prefer-namespace-keyword": "error",
         "@typescript-eslint/quotes": "off",
         "@typescript-eslint/semi": ["off", null],
-        "@typescript-eslint/triple-slash-reference": [
-          "error",
-          {
-            path: "always",
-            types: "prefer-import",
-            lib: "always",
-          },
-        ],
         "@typescript-eslint/type-annotation-spacing": "off",
         "@typescript-eslint/unified-signatures": "error",
         "arrow-body-style": "error",
@@ -124,7 +111,6 @@ module.exports = {
         "no-debugger": "error",
         "no-empty": "error",
         "no-eval": "error",
-        "no-extra-semi": "off",
         "no-fallthrough": "off",
         "no-invalid-this": "off",
         "no-irregular-whitespace": "off",
