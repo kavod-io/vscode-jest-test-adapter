@@ -18,7 +18,6 @@
     "strictNullChecks": true
   },
   "include": [
-    "src/**/*",
     "@types/**/*",
     "**/*.ts",
   ]
