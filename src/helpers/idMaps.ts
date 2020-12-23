@@ -44,4 +44,4 @@ const mapStringToId = (id: string): Id => {
   };
 };
 
-export { mapIdToString, mapStringToId };
+export { mapIdToString, mapStringToId, Id };
