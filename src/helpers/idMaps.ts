@@ -26,15 +26,21 @@ const mapIdToString = (id: Id): string => {
 };
 
 const mapStringToId = (id: string): Id => {
-  const [projectId, fileName, ...rest] = id.split(
-    RegExp(`${PROJECT_ID_SEPARATOR}|${TEST_ID_SEPARATOR}|${DESCRIBE_ID_SEPARATOR}`),
-  );
+  const { projectId, fileName, rest } = id.match(
+    RegExp(`(?<projectId>[^${PROJECT_ID_SEPARATOR}]*)(${PROJECT_ID_SEPARATOR}(?<fileName>[^${DESCRIBE_ID_SEPARATOR}${TEST_ID_SEPARATOR}]*)?(?<rest>.*))?`),
+  )?.groups || {};
+
+  // TestID is everything after first TEST_ID_SEPARATOR, if we find multiple TEST_ID_SEPARATORs, add them back in
+  const [ describes, ...testIdParts ] = rest.split(TEST_ID_SEPARATOR);
+  const testId = testIdParts.join(TEST_ID_SEPARATOR);
+  // Remaining string will start with DESCRIBE_ID_SEPARATOR, so throw away first part when splitting
+  const [, ...describeIds] = describes.split(DESCRIBE_ID_SEPARATOR);
 
   return {
-    describeIds: rest.length > 1 ? rest.slice(0, rest.length - 1) : undefined,
+    describeIds: describeIds.length ? describeIds : undefined,
     fileName,
     projectId,
-    testId: rest[rest.length - 1],
+    testId
   };
 };
 
