@@ -97,7 +97,11 @@ const filterDescribeBlocks = (describeBlocks: DescribeNode[], testNames: string[
       if (testNames.some(t => t === f.id)) {
         return f;
       }
-      return { ...f, tests: filterTests(f.tests, testNames) };
+      return {
+        ...f,
+        describeBlocks: filterDescribeBlocks(f.describeBlocks, testNames),
+        tests: filterTests(f.tests, testNames)
+      };
     });
 };
 
