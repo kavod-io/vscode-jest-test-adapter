@@ -41,6 +41,19 @@ describe('mapStringToId', () => {
     });
   });
 
+  it('parses test when no describe is present', () => {
+    const testString = `someProject${PROJECT_ID_SEPARATOR}someFile${TEST_ID_SEPARATOR}someTest`;
+
+    const testId = mapStringToId(testString);
+
+    expect(testId).toEqual({
+      projectId: 'someProject',
+      fileName: 'someFile',
+      describeIds: undefined,
+      testId: 'someTest'
+    });
+  });
+
   it('parses multiple levels of describes when no test is present', () => {
     const testString = `someProject${PROJECT_ID_SEPARATOR}someFile${DESCRIBE_ID_SEPARATOR}someDescribe1${DESCRIBE_ID_SEPARATOR}someDescribe2${DESCRIBE_ID_SEPARATOR}someDescribe3`;
 
