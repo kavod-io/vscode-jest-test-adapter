@@ -31,8 +31,8 @@ const mapStringToId = (id: string): Id => {
   )?.groups || {};
 
   // TestID is everything after first TEST_ID_SEPARATOR, if we find multiple TEST_ID_SEPARATORs, add them back in
-  const [ describes, ...testIdParts ] = rest.split(TEST_ID_SEPARATOR);
-  const testId = testIdParts.join(TEST_ID_SEPARATOR);
+  const [ describes, ...testIdParts ] = (rest || '').split(TEST_ID_SEPARATOR);
+  const testId = testIdParts.join(TEST_ID_SEPARATOR) || undefined;
   // Remaining string will start with DESCRIBE_ID_SEPARATOR, so throw away first part when splitting
   const [, ...describeIds] = describes.split(DESCRIBE_ID_SEPARATOR);
 
