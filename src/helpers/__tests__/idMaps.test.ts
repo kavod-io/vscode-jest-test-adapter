@@ -15,7 +15,7 @@ describe('mapStringToId', () => {
     });
   });
 
-  it('parses mutliple levels of describes', () => {
+  it('parses multiple levels of describes', () => {
     const testString = `someProject${PROJECT_ID_SEPARATOR}someFile${DESCRIBE_ID_SEPARATOR}someDescribe1${DESCRIBE_ID_SEPARATOR}someDescribe2${DESCRIBE_ID_SEPARATOR}someDescribe3${TEST_ID_SEPARATOR}someTest`;
 
     const testId = mapStringToId(testString);
@@ -41,7 +41,7 @@ describe('mapStringToId', () => {
     });
   });
 
-  it('parses mutliple levels of describes when no test is present', () => {
+  it('parses multiple levels of describes when no test is present', () => {
     const testString = `someProject${PROJECT_ID_SEPARATOR}someFile${DESCRIBE_ID_SEPARATOR}someDescribe1${DESCRIBE_ID_SEPARATOR}someDescribe2${DESCRIBE_ID_SEPARATOR}someDescribe3`;
 
     const testId = mapStringToId(testString);
