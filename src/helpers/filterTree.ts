@@ -7,8 +7,6 @@ import {
   TestNode,
   WorkspaceRootNode,
 } from "./tree";
-import { mapTestIdToTestNamePattern } from "./mapTestIdsToTestFilter";
-import { mapStringToId } from "./idMaps";
 
 function filterTree(tree: WorkspaceRootNode, testNames: string[]): WorkspaceRootNode;
 function filterTree(tree: ProjectRootNode, testNames: string[]): ProjectRootNode;
