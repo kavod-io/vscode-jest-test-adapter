@@ -7,6 +7,8 @@ import {
   TestNode,
   WorkspaceRootNode,
 } from "./tree";
+import { mapTestIdToTestNamePattern } from "./mapTestIdsToTestFilter";
+import { mapStringToId } from "./idMaps";
 
 function filterTree(tree: WorkspaceRootNode, testNames: string[]): WorkspaceRootNode;
 function filterTree(tree: ProjectRootNode, testNames: string[]): ProjectRootNode;
@@ -49,12 +51,16 @@ const filterProject = (project: ProjectRootNode, testNames: string[]): ProjectRo
 
 const filterFolders = (folders: FolderNode[], testNames: string[]): FolderNode[] => {
   return folders
-    .filter(f => testNames.some(t => t.startsWith(f.id)))
-    .map(f => {
-      if (testNames.some(t => t === f.id)) {
-        return f;
+    .filter(folder => testNames.some(testName => testName.startsWith(folder.id)))
+    .map(folder => {
+      if (testNames.some(testName => testName === folder.id)) {
+        return folder;
       }
-      return { ...f, folders: filterFolders(f.folders, testNames), files: filterFiles(f.files, testNames) };
+      return {
+        ...folder,
+        folders: filterFolders(folder.folders, testNames),
+        files: filterFiles(folder.files, testNames)
+      };
     });
 };
 
@@ -63,18 +69,18 @@ const filterFiles = (
   testNames: string[],
 ): Array<FileNode | FileWithParseErrorNode> => {
   return files
-    .filter(f => testNames.some(t => t.startsWith(f.id)))
-    .reduce((acc, f) => {
-      if (testNames.some(t => t === f.id)) {
-        acc.push(f);
+    .filter(file => testNames.some(testName => testName.startsWith(file.id)))
+    .reduce((acc, file) => {
+      if (testNames.some(testName => testName === file.id)) {
+        acc.push(file);
       }
 
-      switch (f.type) {
+      switch (file.type) {
         case "file":
           acc.push({
-            ...f,
-            describeBlocks: filterDescribeBlocks(f.describeBlocks, testNames),
-            tests: filterTests(f.tests, testNames),
+            ...file,
+            describeBlocks: filterDescribeBlocks(file.describeBlocks, testNames),
+            tests: filterTests(file.tests, testNames),
           });
           break;
 
@@ -82,7 +88,7 @@ const filterFiles = (
           // In this edge case where we are asked to filter files that start with this file name but is not an exact match
           // This means we want to filter by describe or test blocks within this file, but we didn't parse it successfully
           // we'll include this file in the results.
-          acc.push(f);
+          acc.push(file);
           break;
       }
 
@@ -92,21 +98,21 @@ const filterFiles = (
 
 const filterDescribeBlocks = (describeBlocks: DescribeNode[], testNames: string[]): DescribeNode[] => {
   return describeBlocks
-    .filter(f => testNames.some(t => t.startsWith(f.id)))
-    .map(f => {
-      if (testNames.some(t => t === f.id)) {
-        return f;
+    .filter(describe => testNames.some(testName => testName.startsWith(describe.id)))
+    .map(describe => {
+      if (testNames.some(testName => testName === describe.id)) {
+        return describe;
       }
       return {
-        ...f,
-        describeBlocks: filterDescribeBlocks(f.describeBlocks, testNames),
-        tests: filterTests(f.tests, testNames)
+        ...describe,
+        describeBlocks: filterDescribeBlocks(describe.describeBlocks, testNames),
+        tests: filterTests(describe.tests, testNames)
       };
     });
 };
 
 const filterTests = (tests: TestNode[], testNames: string[]): TestNode[] => {
-  return tests.filter(f => testNames.some(t => t.startsWith(f.id)));
-};
+  return tests.filter(test => testNames.some(testName => testName.startsWith(test.id)));
+}
 
 export { filterTree };
