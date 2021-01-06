@@ -57,7 +57,7 @@ const convertToWorkspace = (projectConfig: ProjectConfig): ProjectWorkspace => {
   return {
     localJestMajorVersion: 20,
     pathToConfig,
-    pathToJest: jestCommand,
+    jestCommandLine: jestCommand,
     rootPath: projectConfig.jestExecutionDirectory,
   };
 };
